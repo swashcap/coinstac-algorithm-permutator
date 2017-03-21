@@ -1,11 +1,11 @@
 'use strict'
 
 const { assertNumeric } = require('./index.js')
-const mockData = require('./mock-data.json')
+const mockResult = require('./mocks/result.json')
 const tape = require('tape')
 
 tape('assert numeric', (t) => {
-  t.ok(assertNumeric(mockData), 'doesn\'t throw with numeric result')
+  t.ok(assertNumeric(mockResult), 'doesn\'t throw with numeric result')
   t.throws(
     assertNumeric.bind(
       null,

@@ -6,14 +6,16 @@ const fs = require('fs')
 const isNumber = require('lodash/isNumber')
 const map = require('lodash/map')
 const mergeWith = require('lodash/mergeWith')
+const mkdirp = require('mkdirp')
 const path = require('path')
 const pify = require('pify')
 const rimraf = require('rimraf')
 const util = require('util')
 
-const DECLARATION_FILENAME = path.join(__dirname, 'declaration.js')
-const writeFile = pify(fs.writeFile)
-const unlink = pify(rimraf)
+const DECLARATION_FILENAME = path.join(__dirname, '.tmp/declaration.js')
+const asyncMkdirp = pify(mkdirp)
+const asyncRimraf = pify(rimraf)
+const asyncWriteFile = pify(fs.writeFile)
 
 /**
  * Assert results are all numeric.
@@ -49,15 +51,22 @@ function assertNumeric (result) {
  * @returns {Promise}
  */
 function runDeclaration (declaration) {
-  return writeFile(
-    DECLARATION_FILENAME,
-    util.inspect(declaration, { depth: null })
+  console.log(
+    `Running files: ${declaration.local.map(l => path.basename(l.metaFilePath))}`
   )
-    .then(coinstacSimulator.run(DECLARATION_FILENAME))
+
+  const DECLARATION_DIRNAME = path.dirname(DECLARATION_FILENAME)
+
+  return asyncMkdirp(DECLARATION_DIRNAME)
+    .then(() => asyncWriteFile(
+      DECLARATION_FILENAME,
+      `module.exports = ${util.inspect(declaration, { depth: null })}`
+    ))
+    .then(() => coinstacSimulator.run(DECLARATION_FILENAME))
     .then(assertNumeric)
     .then(
-      () => unlink(DECLARATION_FILENAME),
-      error => unlink(DECLARATION_FILENAME).then(() => {
+      () => asyncRimraf(DECLARATION_DIRNAME),
+      error => asyncRimraf(DECLARATION_DIRNAME).then(() => {
         throw error
       })
     )
@@ -75,7 +84,7 @@ function run () {
     .permutationCombination(Array.from(Array(5)).map(
       (value, index) => path.join(
         __dirname,
-        `demo2/metadata-${index + 1}.csv`
+        `mocks/site${index + 1}/site${index + 1}_Covariate.csv`
       )
     ))
     .forEach((metaFilePaths) => {
@@ -93,7 +102,7 @@ function run () {
               type: 'number'
             }]
           ]],
-          computationPath: '../src/index.js',
+          computationPath: '../node_modules/laplacian-noise-ridge-regression/src/index.js',
           local: metaFilePaths.map(metaFilePath => ({
             metaFilePath,
             metaCovariateMapping: {
@@ -110,8 +119,13 @@ function run () {
     (memo, declaration) => memo.concat(runDeclaration(declaration)),
     []
   ))
-  .catch(console.error)
+  .then(
+    () => console.log('All permutations passed'),
+    console.error
+  )
 }
+
+if (require.main === module) run()
 
 module.exports = {
   assertNumeric,
