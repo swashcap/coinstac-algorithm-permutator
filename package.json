@@ -1,0 +1,20 @@
+{
+  "name": "coinstac-algorithm-permutator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "coinstac"
+  ],
+  "author": "Cory Reed <swashcap@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "js-combinatorics": "^0.5.2",
+    "lodash": "^4.17.4",
+    "pify": "^2.3.0",
+    "rimraf": "^2.6.1"
+  }
+}
