@@ -27,16 +27,20 @@ Testing [MRN-Code/decentralized-laplacian-ridge-regression](https://github.com/M
     cd decentralized-laplacian-ridge-regression
     npm link
     ```
-
 6. Clone this repository
-7. Link _coinstac-simulator_ and _laplacian-noise-ridge-regression_:
+7. Install dependencies:
 
     ```shell
     cd coinstac-algorithm-permutator
+    npm install
+    ```
+8. Link _coinstac-simulator_ and _laplacian-noise-ridge-regression_:
+
+    ```shell
     npm link coinstac-simulator
     npm link laplacian-noise-ridge-regression
     ```
-8. Run the permutations!
+9. Run the permutations!
 
     ```shell
     npm start
